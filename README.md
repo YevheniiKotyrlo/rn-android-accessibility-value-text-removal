@@ -1,17 +1,22 @@
-# React Native Reproducer
+# On Android, removing an `accessibilityValue`'s text leaves it in the content description
 
-> [!IMPORTANT]  
-> Do not just **fork** this repository, but use instead the [![Use this template](https://img.shields.io/badge/-Use%20this%20template-brightgreen)](https://github.com/cortinico/reproducer-react-native/generate) button on GitHub.
+`ReproducerApp/App.tsx` renders a `Pressable` and a plain `View`, each with `accessibilityLabel="Country"` and
+`accessibilityValue={{ text: 'Ukraine' }}`, and a button that re-renders both with `accessibilityValue` undefined.
 
-This is the React Native **reproducer** template. 
+React Native 0.88.0, release build, Android 16 emulator (x86_64):
 
-You can use this template to create a minimal, complete, and reproducible project that the community can use to understand what's your problem. You can read more about the principles of a good reproducible project [here](https://stackoverflow.com/help/mcve).
+```sh
+cd ReproducerApp
+yarn install
+cd android && ./gradlew assembleRelease -PreactNativeArchitectures=x86_64 && cd ..
+adb install -r android/app/build/outputs/apk/release/app-release.apk
+adb shell am start -W -n com.reproducerapp/.MainActivity
+adb shell uiautomator dump /sdcard/view.xml && adb pull /sdcard/view.xml before.xml
+# tap "REMOVE THE VALUE", then
+adb shell uiautomator dump /sdcard/view.xml && adb pull /sdcard/view.xml after.xml
+```
 
-This template is up to date with `react-native@latest` as you can find it on [npm](https://www.npmjs.com/package/react-native/v/latest).
-
-## How to use this repository
-
-1. Click on [![Use this template](https://img.shields.io/badge/-Use%20this%20template-brightgreen)](https://github.com/cortinico/reproducer-react-native/generate) button to create a new repository starting from this one.
-2. Git clone your repository locally.
-3. Edit the project to reproduce the failure you're seeing.
-4. Push your changes, so that Github Actions can run the CI.
+| Subject | Before | After, expected | After, seen |
+| --- | --- | --- | --- |
+| `pressable-subject` | `content-desc="Country, Ukraine"` | `Country` | `Country, Ukraine` |
+| `view-subject` | `content-desc="Country, Ukraine"` | `Country` | empty |

@@ -1,44 +1,44 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { Button, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+  const [country, setCountry] = useState<string | undefined>('Ukraine');
+  const accessibilityValue = country === undefined ? undefined : { text: country };
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
+      <SafeAreaView style={styles.screen}>
+        <Pressable
+          accessibilityLabel="Country"
+          accessibilityValue={accessibilityValue}
+          style={styles.subject}
+          testID="pressable-subject">
+          <Text>Pressable: {country ?? 'no value'}</Text>
+        </Pressable>
+        <View
+          accessible
+          accessibilityLabel="Country"
+          accessibilityValue={accessibilityValue}
+          style={styles.subject}
+          testID="view-subject">
+          <Text>View: {country ?? 'no value'}</Text>
+        </View>
+        <Button title="Remove the value" onPress={() => setCountry(undefined)} testID="remove" />
+      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+    gap: 16,
+    padding: 24,
+  },
+  subject: {
+    borderWidth: 1,
+    padding: 16,
   },
 });
 
